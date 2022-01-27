@@ -25,7 +25,7 @@ namespace RabbitMQ.publisher
             headers.Add("shape", "a4");
             var properties=channel.CreateBasicProperties();
             properties.Headers=headers;
-
+            properties.Persistent = true;//mesajları kalıcı hale getirir
             channel.BasicPublish("header-exchange", string.Empty,properties,Encoding.UTF8.GetBytes("my header message"));//Artık root uzerinden degil header uzerinden gerceklestigi icin 2.parametreye empty degeri verilmisitr.
 
             Console.WriteLine("Message Sent");
