@@ -26,30 +26,32 @@ namespace RabbitMQ.publisher
             //rabbitMq'ya bir kanal uzerinden baglanilir.
             var channel = connection.CreateModel();
             //durable :true demek ExchangeDeclare fiziksel olarak (belleğe) kayıt edilsin demek.
-            channel.ExchangeDeclare("logs-direct", durable: true, type: ExchangeType.Fanout);
+            channel.ExchangeDeclare("logs-topic", durable: true, type: ExchangeType.Topic);
 
             //** Herbir Enum(queue message) foreach ile isimine gore ve direct exchange ile gonderiliyor. 
             Enum.GetNames(typeof(LogNames)).ToList().ForEach(x =>
             {
-                var rootKey = $"root-{x}";
-                var queueName = $"direct-queue-{x}";
-                channel.QueueDeclare(queueName, durable:true,false,false);
-                channel.QueueBind(queueName, "logs-direct",rootKey);
+                Random rnd = new Random();
+                LogNames log1 =(LogNames) rnd.Next(1, 5);
+                LogNames log2 = (LogNames)rnd.Next(1, 5);
+                LogNames log3 = (LogNames)rnd.Next(1, 5);
+                var rootKey = $"{log1}.{log2}.{log3}";
             });
 
-
+            Random rnd = new Random();
             //rootlama islemi
             Enumerable.Range(1, 50).ToList().ForEach(x =>
             {
                 LogNames log=(LogNames)new Random().Next(1,5);
-                string message = $"Log-type: {log}";
-
+        
+                LogNames log1 = (LogNames)rnd.Next(1, 5);
+                LogNames log2 = (LogNames)rnd.Next(1, 5);
+                LogNames log3 = (LogNames)rnd.Next(1, 5);
+                var rootKey = $"{log1}.{log2}.{log3}";
+                string message = $"Log-type: {log1}-{log2}-{log3}";
                 //mesaj byte cevriliyor.Turkce karakterlerde sorun yasamamak icin
                 var messageBody = Encoding.UTF8.GetBytes(message);
-
-                var rootKey = $"root-{log}";
-
-                channel.BasicPublish("logs-direct",rootKey, null, messageBody);
+                channel.BasicPublish("logs-topic",rootKey, null, messageBody);
                 Console.WriteLine($"Sending Log: {message}");
 
             });

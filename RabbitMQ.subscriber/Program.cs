@@ -16,7 +16,10 @@ channel.BasicQos(0, 1, false);//global parametresinin true olması tek bir sefer
 //BasicQos(0,5,false) global'ı false olması tek seferde A subscriber ve B subscriber'lara 5 er queue gonderir.
 var consumer = new EventingBasicConsumer(channel);
 
-var queueName = "direct-queue-Critical";
+var queueName = channel.QueueDeclare().QueueName;
+var rootKey = "*.Error.*";
+channel.QueueBind(queueName,"logs-topic",rootKey);//QueueBind etmek subscriber dustugunde queue'de direk dussun.
+
 channel.BasicConsume(queueName, false, consumer);//Bir kuyruk ismi istiyor.Bir sonraki parametre autoAck mesaj ulastıktan sonra silinmesi isteniyorsa true isaretlenir.
 Console.WriteLine("Listening to logs...");
 consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
