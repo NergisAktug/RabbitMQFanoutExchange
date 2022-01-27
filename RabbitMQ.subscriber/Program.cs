@@ -17,8 +17,12 @@ channel.BasicQos(0, 1, false);//global parametresinin true olması tek bir sefer
 var consumer = new EventingBasicConsumer(channel);
 
 var queueName = channel.QueueDeclare().QueueName;
-var rootKey = "*.Error.*";
-channel.QueueBind(queueName,"logs-topic",rootKey);//QueueBind etmek subscriber dustugunde queue'de direk dussun.
+Dictionary<string,object> headers = new Dictionary<string, object>();
+headers.Add("format", "pdf");
+headers.Add("shape", "a4");
+headers.Add("x-match", "all");
+
+channel.QueueBind(queueName, "header-exchange", string.Empty,headers);//QueueBind etmek subscriber dustugunde queue'de direk dussun.
 
 channel.BasicConsume(queueName, false, consumer);//Bir kuyruk ismi istiyor.Bir sonraki parametre autoAck mesaj ulastıktan sonra silinmesi isteniyorsa true isaretlenir.
 Console.WriteLine("Listening to logs...");
@@ -27,7 +31,7 @@ consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
     var message = Encoding.UTF8.GetString(e.Body.ToArray());
     Thread.Sleep(1500);
     Console.WriteLine("Incoming messages:" + message);
-    //File.AppendAllText("log-critical.txt",message+"\n");
+  
     //DeliveryTag ile bana ulasılan şu taglı mesajı RabbitMQ'ya gonderiyorum,RabbitMq'da ilgili mesajı kuruktan siliyor.
     channel.BasicAck(e.DeliveryTag, false);//multiple parametresi true yapılırsa bunun gibi baska işlenmiş mesajlar var ise memory de onlarıda kuyruktan silmeye yarar.
 };
