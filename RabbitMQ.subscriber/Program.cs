@@ -1,6 +1,8 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Shared;
 using System.Text;
+using System.Text.Json;
 
 var factory = new ConnectionFactory();
 factory.Uri = new Uri("amqps://mrltcrpj:nG85peo0qknQoavrqwK7OJ3NOB9GTr4T@baboon.rmq.cloudamqp.com/mrltcrpj");
@@ -29,8 +31,9 @@ Console.WriteLine("Listening to logs...");
 consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
 {
     var message = Encoding.UTF8.GetString(e.Body.ToArray());
+   Product product=JsonSerializer.Deserialize<Product>(message);
     Thread.Sleep(1500);
-    Console.WriteLine("Incoming messages:" + message);
+    Console.WriteLine($"Incoming messages: {product.Id}-{product.Name}-{product.Price}-{product.Stock}");
   
     //DeliveryTag ile bana ulasılan şu taglı mesajı RabbitMQ'ya gonderiyorum,RabbitMq'da ilgili mesajı kuruktan siliyor.
     channel.BasicAck(e.DeliveryTag, false);//multiple parametresi true yapılırsa bunun gibi baska işlenmiş mesajlar var ise memory de onlarıda kuyruktan silmeye yarar.
