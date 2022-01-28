@@ -26,7 +26,7 @@ namespace RabbitMQ.publisher
             //rabbitMq'ya bir kanal uzerinden baglanilir.
             var channel = connection.CreateModel();
             //durable :true demek ExchangeDeclare fiziksel olarak (belleğe) kayıt edilsin demek.
-            channel.ExchangeDeclare("logs-direct", durable: true, type: ExchangeType.Fanout);
+            channel.ExchangeDeclare("logs-direct", durable: true, type: ExchangeType.Direct);
 
             //** Herbir Enum(queue message) foreach ile isimine gore ve direct exchange ile gonderiliyor. 
             Enum.GetNames(typeof(LogNames)).ToList().ForEach(x =>
